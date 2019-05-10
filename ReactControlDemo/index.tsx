@@ -1,13 +1,29 @@
 import {IInputs, IOutputs} from "./generated/ManifestTypes";
+import * as React from "react";
+import { render } from "react-dom";
+import DemoComponent from "./DemoComponent";
 
-export class ReactControlDemo implements ComponentFramework.StandardControl<IInputs, IOutputs> {
+type CompProps = {
+};
+type CompState = {	
+};
 
-	/**
-	 * Empty constructor.
-	 */
-	constructor()
-	{
+export class ReactControlDemo extends React.Component<CompProps> implements ComponentFramework.StandardControl<IInputs, IOutputs> {
 
+	private _value: string;
+	private _notifyOutputChanged:() => void;
+	private _container: HTMLDivElement;
+	private _context: ComponentFramework.Context<IInputs>;
+
+	constructor(props:CompProps) {
+		super(props);
+
+		this.handleFieldChange = this.handleFieldChange.bind(this);
+	}
+
+	handleFieldChange(id:string, value: string) {
+		this._value = value;
+		this._notifyOutputChanged();
 	}
 
 	/**
@@ -18,11 +34,20 @@ export class ReactControlDemo implements ComponentFramework.StandardControl<IInp
 	 * @param state A piece of data that persists in one session for a single user. Can be set at any point in a controls life cycle by calling 'setControlState' in the Mode interface.
 	 * @param container If a control is marked control-type='starndard', it will receive an empty div element within which it can render its content.
 	 */
-	public init(context: ComponentFramework.Context<IInputs>, notifyOutputChanged: () => void, state: ComponentFramework.Dictionary, container:HTMLDivElement)
+	public init(context: ComponentFramework.Context<IInputs>, 
+		notifyOutputChanged: () => void, 
+		state: ComponentFramework.Dictionary, 
+		container:HTMLDivElement)
 	{
 		// Add control initialization code
-	}
+		this._context = context;
+		this._container = document.createElement("div");
+		this._notifyOutputChanged = notifyOutputChanged;
 
+		// creating HTML elements for the input type range and binding it to the function which refreshes the control data
+		// appending the HTML elements to the control's HTML container element.
+		container.appendChild(this._container);
+	}
 
 	/**
 	 * Called when any value in the property bag has changed. This includes field values, data-sets, global values such as container height and width, offline status, control metadata values such as label, visible, etc.
@@ -31,6 +56,10 @@ export class ReactControlDemo implements ComponentFramework.StandardControl<IInp
 	public updateView(context: ComponentFramework.Context<IInputs>): void
 	{
 		// Add code to update control view
+		// storing the latest context from the control.
+		this._context = context;
+		this._value = context.parameters.value.raw;
+		render(<DemoComponent id="control1" value={this._value} onChange={this.handleFieldChange} />, this._container);
 	}
 
 	/** 
@@ -39,7 +68,10 @@ export class ReactControlDemo implements ComponentFramework.StandardControl<IInp
 	 */
 	public getOutputs(): IOutputs
 	{
-		return {};
+		return {
+			value : this._value
+		};
+			
 	}
 
 	/** 
@@ -49,5 +81,6 @@ export class ReactControlDemo implements ComponentFramework.StandardControl<IInp
 	public destroy(): void
 	{
 		// Add code to cleanup control if necessary
+		
 	}
 }
