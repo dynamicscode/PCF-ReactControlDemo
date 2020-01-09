@@ -1,24 +1,18 @@
 import {IInputs, IOutputs} from "./generated/ManifestTypes";
-import * as React from "react";
-import { render } from "react-dom";
-import DemoComponent from "./DemoComponent";
+import * as React from 'react';
+import * as ReactDOM from 'react-dom';
+import { DemoComponent, IProps} from "./DemoComponent";
 
-type CompProps = {
-};
-type CompState = {	
-};
-
-export class ReactControlDemo extends React.Component<CompProps> implements ComponentFramework.StandardControl<IInputs, IOutputs> {
+export class ReactControlDemo implements ComponentFramework.StandardControl<IInputs, IOutputs> {
 
 	private _value: string;
 	private _notifyOutputChanged:() => void;
 	private _container: HTMLDivElement;
 	private _context: ComponentFramework.Context<IInputs>;
+	private props: IProps = { id : "controlid", value : "", onChange : this.handleFieldChange.bind(this) };
 
-	constructor(props:CompProps) {
-		super(props);
-
-		this.handleFieldChange = this.handleFieldChange.bind(this);
+	constructor() {
+		
 	}
 
 	handleFieldChange(id:string, value: string) {
@@ -43,6 +37,7 @@ export class ReactControlDemo extends React.Component<CompProps> implements Comp
 		this._context = context;
 		this._container = document.createElement("div");
 		this._notifyOutputChanged = notifyOutputChanged;
+		this.props.value = context.parameters.value.raw || "";
 
 		// creating HTML elements for the input type range and binding it to the function which refreshes the control data
 		// appending the HTML elements to the control's HTML container element.
@@ -58,8 +53,9 @@ export class ReactControlDemo extends React.Component<CompProps> implements Comp
 		// Add code to update control view
 		// storing the latest context from the control.
 		this._context = context;
-		this._value = context.parameters.value.raw;
-		render(<DemoComponent id="control1" value={this._value} onChange={this.handleFieldChange} />, this._container);
+		this._value = context.parameters.value.raw || "";
+		this.props.value = this._value;
+		ReactDOM.render(React.createElement(DemoComponent, this.props), this._container);
 	}
 
 	/** 

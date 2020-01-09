@@ -1,19 +1,19 @@
 import * as React from 'react';
 
-type Props = {
+export interface IProps {
     id: string;
     value: string;
     onChange: (id: string, value:string) => void;
 }
 
-type State = {
+export interface IState {
     Counter: number;
 }
 
-export default class DemoComponent extends React.Component<Props, State> {
-    constructor(props: Readonly<Props>) {
+export class DemoComponent extends React.Component<IProps, IState> {
+    constructor(props: Readonly<IProps>) {
         super(props);
-        this.state = {Counter: 0};
+        this.state = { Counter: 0 };
         this.handleChange = this.handleChange.bind(this);
         this.updateCounter = this.updateCounter.bind(this);
     }
@@ -24,13 +24,13 @@ export default class DemoComponent extends React.Component<Props, State> {
                 <h2>This is a heading.</h2>
                 <p>This is a paragraph.</p>
                 <input type='text' value={this.props.value} onChange={this.handleChange}  />
-                <button value="+" onClick={this.updateCounter}>+</button>
-                <button value="-" onClick={this.updateCounter}>-</button>
+                <button type="button" value="+" onClick={this.updateCounter}>+</button>
+                <button type="button" value="-" onClick={this.updateCounter}>-</button>
             </div>
         );
     }
     
-    componentWillReceiveProps(np: Props) {
+    componentWillReceiveProps(np: IProps) {
         this.setState({Counter : parseInt(np.value)});
     }
     
